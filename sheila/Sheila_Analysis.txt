@@ -1,0 +1,439 @@
+########## Univariate condition logistic regression ##
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+"sFlt1"
+        coef exp(coef) se(coef)     z Pr(>|z|)    
+var_  2.4525   11.6169   0.5498 4.461 8.16e-06 ***
+---
+
+
+     exp(coef) exp(-coef) lower .95 upper .95
+var_     11.62    0.08608     3.955     34.12
+
+Concordance= 0.915  (se = 0.038 )
+Likelihood ratio test= 115.9  on 1 df,   p=<2e-16
+Wald test            = 19.9  on 1 df,   p=8e-06
+Score (logrank) test = 79.08  on 1 df,   p=<2e-16
+
+[1] "PlGF"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+        coef exp(coef) se(coef)      z Pr(>|z|)    
+var_ -1.3721    0.2536   0.3108 -4.414 1.01e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     exp(coef) exp(-coef) lower .95 upper .95
+var_    0.2536      3.944    0.1379    0.4663
+
+Concordance= 0.934  (se = 0.034 )
+Likelihood ratio test= 112.2  on 1 df,   p=<2e-16
+Wald test            = 19.49  on 1 df,   p=1e-05
+Score (logrank) test = 77.22  on 1 df,   p=<2e-16
+
+[1] "VEGF"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+        coef exp(coef) se(coef)      z Pr(>|z|)    
+var_ -0.5683    0.5665   0.1641 -3.463 0.000534 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     exp(coef) exp(-coef) lower .95 upper .95
+var_    0.5665      1.765    0.4107    0.7814
+
+Concordance= 0.679  (se = 0.063 )
+Likelihood ratio test= 15.03  on 1 df,   p=1e-04
+Wald test            = 11.99  on 1 df,   p=5e-04
+Score (logrank) test = 13.92  on 1 df,   p=2e-04
+
+[1] "sFlt1_P1GF"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+       coef exp(coef) se(coef)     z Pr(>|z|)    
+var_ 1.1250    3.0803   0.2867 3.925 8.68e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+     exp(coef) exp(-coef) lower .95 upper .95
+var_      3.08     0.3246     1.756     5.403
+
+Concordance= 0.934  (se = 0.034 )
+Likelihood ratio test= 123.1  on 1 df,   p=<2e-16
+Wald test            = 15.4  on 1 df,   p=9e-05
+Score (logrank) test = 81.91  on 1 df,   p=<2e-16
+
+[1] "religion"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 210, number of events= 106 
+   (2 observations deleted due to missingness)
+
+         coef exp(coef) se(coef)     z Pr(>|z|)
+var_2 0.01357   1.01366  0.37818 0.036    0.971
+var_3 0.28373   1.32807  0.38850 0.730    0.465
+var_4 0.51221   1.66898  0.81456 0.629    0.529
+var_7 0.31914   1.37594  0.42852 0.745    0.456
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2     1.014     0.9865    0.4830     2.127
+var_3     1.328     0.7530    0.6202     2.844
+var_4     1.669     0.5992    0.3381     8.238
+var_7     1.376     0.7268    0.5941     3.187
+
+Concordance= 0.548  (se = 0.061 )
+Likelihood ratio test= 1.27  on 4 df,   p=0.9
+Wald test            = 1.25  on 4 df,   p=0.9
+Score (logrank) test = 1.26  on 4 df,   p=0.9
+
+[1] "education"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+           coef exp(coef)  se(coef)     z Pr(>|z|)
+var_2 1.807e+01 7.045e+07 5.440e+03 0.003    0.997
+var_3 1.828e+01 8.677e+07 5.440e+03 0.003    0.997
+var_4 1.720e+01 2.959e+07 5.440e+03 0.003    0.997
+var_5 1.791e+01 6.015e+07 5.440e+03 0.003    0.997
+var_6 1.849e+01 1.076e+08 5.440e+03 0.003    0.997
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2  70445019  1.420e-08         0       Inf
+var_3  86769608  1.152e-08         0       Inf
+var_4  29588455  3.380e-08         0       Inf
+var_5  60154784  1.662e-08         0       Inf
+var_6 107585361  9.295e-09         0       Inf
+
+Concordance= 0.642  (se = 0.056 )
+Likelihood ratio test= 15.04  on 5 df,   p=0.01
+Wald test            = 11.85  on 5 df,   p=0.04
+Score (logrank) test = 14.05  on 5 df,   p=0.02
+
+[1] "maritalstatus"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+        coef exp(coef) se(coef)     z Pr(>|z|)
+var_2 0.4055    1.5000   0.4564 0.888    0.374
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2       1.5     0.6667    0.6132      3.67
+
+Concordance= 0.519  (se = 0.03 )
+Likelihood ratio test= 0.81  on 1 df,   p=0.4
+Wald test            = 0.79  on 1 df,   p=0.4
+Score (logrank) test = 0.8  on 1 df,   p=0.4
+
+[1] "smoking"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+           coef exp(coef)  se(coef)     z Pr(>|z|)
+var_2 1.720e+01 2.959e+07 5.440e+03 0.003    0.997
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2  29588452   3.38e-08         0       Inf
+
+Concordance= 0.505  (se = 0.007 )
+Likelihood ratio test= 1.39  on 1 df,   p=0.2
+Wald test            = 0  on 1 df,   p=1
+Score (logrank) test = 1  on 1 df,   p=0.3
+
+[1] "alcohol"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 211, number of events= 105 
+   (1 observation deleted due to missingness)
+
+        coef exp(coef) se(coef)     z Pr(>|z|)
+var_2 0.2877    1.3333   0.5401 0.533    0.594
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2     1.333       0.75    0.4626     3.843
+
+Concordance= 0.51  (se = 0.025 )
+Likelihood ratio test= 0.29  on 1 df,   p=0.6
+Wald test            = 0.28  on 1 df,   p=0.6
+Score (logrank) test = 0.29  on 1 df,   p=0.6
+
+[1] "historystroke"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+            coef  exp(coef)   se(coef)      z Pr(>|z|)
+var_2  1.820e+01  8.043e+07  8.968e+03  0.002    0.998
+var_3 -1.820e+01  1.243e-08  8.968e+03 -0.002    0.998
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2 8.043e+07  1.243e-08         0       Inf
+var_3 1.243e-08  8.043e+07         0       Inf
+
+Concordance= 0.509  (se = 0.009 )
+Likelihood ratio test= 2.77  on 2 df,   p=0.3
+Wald test            = 0  on 2 df,   p=1
+Score (logrank) test = 2  on 2 df,   p=0.4
+
+[1] "heartattack"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+            coef  exp(coef)   se(coef)      z Pr(>|z|)
+var_2  1.920e+01  2.186e+08  1.046e+04  0.002    0.999
+var_3 -1.920e+01  4.574e-09  8.537e+03 -0.002    0.998
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2 2.186e+08  4.574e-09         0       Inf
+var_3 4.574e-09  2.186e+08         0       Inf
+
+Concordance= 0.524  (se = 0.015 )
+Likelihood ratio test= 6.93  on 2 df,   p=0.03
+Wald test            = 0  on 2 df,   p=1
+Score (logrank) test = 5  on 2 df,   p=0.08
+
+[1] "diabetesmellitus"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 211, number of events= 105 
+   (1 observation deleted due to missingness)
+
+       coef exp(coef) se(coef) z Pr(>|z|)
+var_3 0.000     1.000    1.414 0        1
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_3         1          1   0.06255     15.99
+
+Concordance= 0.5  (se = 0 )
+Likelihood ratio test= 0  on 1 df,   p=1
+Wald test            = 0  on 1 df,   p=1
+Score (logrank) test = 0  on 1 df,   p=1
+
+[1] "hivstatus"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+        coef exp(coef) se(coef)     z Pr(>|z|)  
+var_2 1.0986    3.0000   0.6667 1.648   0.0994 .
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2         3     0.3333    0.8122     11.08
+
+Concordance= 0.528  (se = 0.023 )
+Likelihood ratio test= 3.14  on 1 df,   p=0.08
+Wald test            = 2.72  on 1 df,   p=0.1
+Score (logrank) test = 3  on 1 df,   p=0.08
+
+[1] "historypreeclampsia"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 211, number of events= 106 
+   (1 observation deleted due to missingness)
+
+        coef exp(coef) se(coef)     z Pr(>|z|)
+var_2 1.2528    3.5000   0.8018 1.562    0.118
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2       3.5     0.2857    0.7271     16.85
+
+Concordance= 0.524  (se = 0.02 )
+Likelihood ratio test= 2.94  on 1 df,   p=0.09
+Wald test            = 2.44  on 1 df,   p=0.1
+Score (logrank) test = 2.78  on 1 df,   p=0.1
+
+[1] "historyhypertension"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+        coef exp(coef) se(coef)     z Pr(>|z|)  
+var_2 0.6931    2.0000   0.3273 2.118   0.0342 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2         2        0.5     1.053     3.799
+
+Concordance= 0.566  (se = 0.042 )
+Likelihood ratio test= 4.76  on 1 df,   p=0.03
+Wald test            = 4.48  on 1 df,   p=0.03
+Score (logrank) test = 4.67  on 1 df,   p=0.03
+
+[1] "firstpregnancy"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+        coef exp(coef) se(coef)     z Pr(>|z|)
+var_2 0.3629    1.4375   0.3255 1.115    0.265
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2     1.437     0.6957    0.7595     2.721
+
+Concordance= 0.533  (se = 0.041 )
+Likelihood ratio test= 1.26  on 1 df,   p=0.3
+Wald test            = 1.24  on 1 df,   p=0.3
+Score (logrank) test = 1.26  on 1 df,   p=0.3
+
+[1] "pregnancy7months"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 131, number of events= 62 
+   (81 observations deleted due to missingness)
+
+            coef  exp(coef)   se(coef)      z Pr(>|z|)  
+var_1 -1.824e+00  1.614e-01  1.184e+00 -1.540   0.1236  
+var_2 -9.283e-01  3.952e-01  1.213e+00 -0.766   0.4439  
+var_3 -1.736e+00  1.763e-01  1.213e+00 -1.430   0.1527  
+var_4 -2.837e+00  5.862e-02  1.423e+00 -1.994   0.0462 *
+var_5 -3.162e+00  4.233e-02  1.658e+00 -1.907   0.0565 .
+var_6  1.695e+01  2.306e+07  1.024e+04  0.002   0.9987  
+var_8 -2.204e+01  2.681e-10  1.479e+04 -0.001   0.9988  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_1 1.614e-01  6.195e+00  0.015846     1.644
+var_2 3.952e-01  2.530e+00  0.036709     4.255
+var_3 1.763e-01  5.672e+00  0.016344     1.902
+var_4 5.862e-02  1.706e+01  0.003606     0.953
+var_5 4.233e-02  2.362e+01  0.001641     1.092
+var_6 2.306e+07  4.336e-08  0.000000       Inf
+var_8 2.681e-10  3.730e+09  0.000000       Inf
+
+Concordance= 0.696  (se = 0.077 )
+Likelihood ratio test= 13.82  on 7 df,   p=0.05
+Wald test            = 7.11  on 7 df,   p=0.4
+Score (logrank) test = 11.7  on 7 df,   p=0.1
+
+[1] "condomuse"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 204, number of events= 101 
+   (8 observations deleted due to missingness)
+
+         coef exp(coef) se(coef)      z Pr(>|z|)
+var_2 -0.4274    0.6522   0.3319 -1.288    0.198
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2    0.6522      1.533    0.3403      1.25
+
+Concordance= 0.541  (se = 0.044 )
+Likelihood ratio test= 1.7  on 1 df,   p=0.2
+Wald test            = 1.66  on 1 df,   p=0.2
+Score (logrank) test = 1.68  on 1 df,   p=0.2
+
+[1] "differentpartner"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+         coef exp(coef) se(coef)     z Pr(>|z|)
+var_2 0.01901   1.01919  0.33364 0.057    0.955
+var_3 0.25023   1.28432  0.32722 0.765    0.444
+
+      exp(coef) exp(-coef) lower .95 upper .95
+var_2     1.019     0.9812    0.5300     1.960
+var_3     1.284     0.7786    0.6763     2.439
+
+Concordance= 0.524  (se = 0.055 )
+Likelihood ratio test= 0.61  on 2 df,   p=0.7
+Wald test            = 0.61  on 2 df,   p=0.7
+Score (logrank) test = 0.61  on 2 df,   p=0.7
+
+[1] "agegroup"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 212, number of events= 106 
+
+                coef  exp(coef)   se(coef)      z Pr(>|z|)
+var_23-27  5.032e-01  1.654e+00  8.054e-01  0.625    0.532
+var_28-32 -2.332e-01  7.920e-01  9.364e-01 -0.249    0.803
+var_33-37 -1.059e+00  3.467e-01  1.229e+00 -0.862    0.389
+var_43-47  1.614e+01  1.026e+07  5.440e+03  0.003    0.998
+
+          exp(coef) exp(-coef) lower .95 upper .95
+var_23-27 1.654e+00  6.046e-01   0.34119     8.018
+var_28-32 7.920e-01  1.263e+00   0.12638     4.963
+var_33-37 3.467e-01  2.885e+00   0.03118     3.854
+var_43-47 1.026e+07  9.749e-08   0.00000       Inf
+
+Concordance= 0.542  (se = 0.03 )
+Likelihood ratio test= 3.89  on 4 df,   p=0.4
+Wald test            = 2.25  on 4 df,   p=0.7
+Score (logrank) test = 3.41  on 4 df,   p=0.5
+
+[1] "wksameno"
+Call:
+coxph(formula = Surv(rep(1, 212L), event) ~ var_ + strata(id), 
+    method = "exact")
+
+  n= 151, number of events= 66 
+   (61 observations deleted due to missingness)
+
+                coef  exp(coef)   se(coef)      z Pr(>|z|)
+var_29-33 -1.488e-01  8.617e-01  4.886e-01 -0.305    0.761
+var_34-37 -5.297e-01  5.888e-01  7.332e-01 -0.722    0.470
+var_38-42 -3.832e-16  1.000e+00  1.000e+00  0.000    1.000
+
+          exp(coef) exp(-coef) lower .95 upper .95
+var_29-33    0.8617      1.160    0.3307     2.246
+var_34-37    0.5888      1.698    0.1399     2.478
+var_38-42    1.0000      1.000    0.1409     7.099
+
+Concordance= 0.537  (se = 0.069 )
+Likelihood ratio test= 0.6  on 3 df,   p=0.9
+Wald test            = 0.58  on 3 df,   p=0.9
+Score (logrank) test = 0.59  on 3 df,   p=0.9
+
+#Multivariable
