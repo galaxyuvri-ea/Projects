@@ -1,6 +1,6 @@
 rm(list = ls())
 dev.off()
-sheila<-read.csv("clean_data/PE_labdata.csv")
+sheila<-read.csv("PE_labdata.csv")
 sheila$sFlt1_P1GF<-sheila$sFlt1/sheila$PlGF
 #View(sheila)
 #shapiro.test(sheila$sFlt1[sheila$Status=='Controls'])
@@ -28,42 +28,40 @@ sheila$sFlt1<-log(sheila$sFlt1)
 sheila$PlGF<-log(sheila$PlGF)
 sheila$VEGF<-log(sheila$VEGF)
 sheila$sFlt1_P1GF<-log(sheila$sFlt1_P1GF)
+
 ######### create facet plots #########
-df<-sheila[c(2,4:8)]
-names(df)<-c("studyID","sFlT1","PlGF","VEGF","Status","sFlT1/PlGF")
 require(reshape2)
+df<-sheila[c(2,4:8)]
+names(df)<-c("studyID","sFlt1","PlGF","VEGF","Status","sFlt1/PlGF")
+require(reshape2)
+require(tidyr)
 df1<-melt(df, id.vars=c("studyID","Status"))
+
+df1<-df1 %>% 
+  dplyr::mutate(variable = factor(variable,levels = c('VEGF','PlGF','sFlt1','sFlt1/PlGF'))) 
+
+require(ggplot2)
+#analyte='sFlt1'
+#df1s<-df1[df1$variable==analyte,]
 p <- ggplot(df1, aes(Status, value, colour = factor(Status))) + geom_boxplot()+geom_jitter()
-p<-p + facet_grid(cols = vars(variable))+theme_classic()
-p<-p+xlab('')+ylab('Plasma levels')
-p$labels$colour<-"Status"
+p<-p+theme_classic(base_family = "Arial Black")
+p<-p + facet_wrap(~variable, scales = 'free_y')+theme_classic()
+p<-p+xlab('')+ylab('Log-transformed plasma concentration')
+p<-p+theme(text = element_text(size=20, face='bold'),
+           axis.text.x = element_text(size=20, face='bold'),
+           legend.position = 'none'
+           )
+#p$labels$colour<-"Status"
 p
 
-############ conditional logistic regression ########
-clinic<-read.csv("clean_data/PE_demodata.csv")
-screenGA<-read.csv('clean_data/PE_screenGA.csv')
-screen_ids<-read.csv('clean_data/screen_recruit.csv')
-#add study id to GA by matching ids
-screenGA$studyID<-screen_ids$studyid[match(screenGA$screening_no, screen_ids$screeningn)]
-#Let us start by defining age groups and wksameno
-#13-17, 18-22, 23-27, 28-32, 33-37, 38-42, 43-47, 48-52 years and 
-#20-28, 29-33, 34-37, 38-42 weeks for gestational age
-clinic$agegroup<-cut(clinic$age, breaks = c(12, 17, 22, 27, 32, 37, 42, 47, 52), 
-                labels = c("13-17", "18-22", "23-27", "28-32", "33-37", "38-42", "43-47", "48-52"))
-clinic$GA<-screenGA$Gestational_age2[match(clinic$studyid, screenGA$studyID)]
 
+############ conditional logistic regression ########
+clinic<-read.csv('clinic.csv')
 clinic$wksameno<-cut(clinic$GA, 
                      breaks = c(19, 28, 33, 37, 43), 
                      labels = c("20-28", "29-33", "34-37", "38-43"))
-#make study id similar to the one in the labdata
-#Just add a prefix, PE for Pre-Eclampsia
-clinic$studyID<-paste0("PE",clinic$studyid)
-clinic$pregnancy7months[is.na(clinic$pregnancy7months)]<-0
-clinic$pregnancy7months<-cut(clinic$pregnancy7months, 
-                             breaks = c(-1,0,2,8),
-                             labels=c('None','1-2','Above 2'))
 
-hypert<-read.csv('clean_data/dxhypertension.csv')
+hypert<-read.csv('dxhypertension.csv')
 hypert$studyid<-paste0('PE',hypert$studyid)
 hypert$status<-NULL
 names(hypert)<-c("studyID","dxhypertension")
@@ -79,6 +77,36 @@ str(clinic)
 
 #Merge clinical and lab data
 merged<-merge(sheilaOrig, clinic, by="studyID",all.x = T)
+
+#summarise ctrls and cases by gestational age group
+table(merged$Status.x,merged$wksameno)
+#trends 
+trend<-merged[c('studyID','Status.x',"sFlt1", "PlGF", "VEGF", "sFlt1_P1GF", "wksameno")]
+names(trend)<-c('studyID','Status.x',"sFlt1", "PlGF", "VEGF", "sFlt1/PlGF", "wksameno")
+trend<-melt(trend, id.vars=c("studyID","Status.x","wksameno"))
+#trend$value<-log(trend$value)
+trend_mean<-aggregate(value~wksameno+Status.x+variable, data = trend, median)
+trend_mean$value<-log(trend_mean$value)
+trend_sd<-aggregate(value~wksameno+Status.x+variable, data = trend, sd)
+trend_mean$sd<-trend_sd$value
+
+trend_mean<-trend_mean %>% 
+  dplyr::mutate(variable = factor(variable,levels = c('VEGF','PlGF','sFlt1','sFlt1/PlGF'))) 
+
+p <- ggplot(trend_mean, aes(x=wksameno, y=value, group=Status.x, color = factor(Status.x))) + 
+  geom_point()+geom_line()+theme_classic()
+#p<-p+geom_errorbar(aes(ymin=value-sd, ymax=value+sd), width=.2,
+ #                  position=position_dodge(0.05))
+p<-p + facet_grid(~variable, scales = 'free')#+theme_classic()
+p<-p+xlab('Gestational age (weeks)')+ylab('Log-transformed plasma concentration')
+  #+theme(text = element_text(size=30))
+p<-p+theme(text = element_text(size=20, face = 'bold'),
+           axis.text.x = element_text(angle=90,hjust = 1, 
+                                      size=20,vjust=0.5, face = 'bold'))
+
+p$labels$colour<-"Status"
+p
+
 
 require(survival)
 merged$case[merged$Status.x=="Cases"]<-1
@@ -164,10 +192,10 @@ modData<-merged[ , -which(names(merged) %in% c("Status.x","Status.y","age","Samp
                                                "studyID","studyid.x","studyid.y",
                                                "gestationagewks"))]
 
-# modData$sFlt1<-log2(modData$sFlt1)
-# modData$PlGF<-log2(modData$PlGF)
-# modData$VEGF<-log2(modData$VEGF)
-# modData$sFlt1_P1GF<-log2(modData$sFlt1_P1GF)
+modData$sFlt1<-log2(modData$sFlt1)
+modData$PlGF<-log2(modData$PlGF)
+modData$VEGF<-log2(modData$VEGF)
+modData$sFlt1_P1GF<-log2(modData$sFlt1_P1GF)
 
 results_CLR <- function(data, var) {
   event<-data[,"case"]
@@ -186,16 +214,16 @@ for(var_ in ab){
 }
 
 ########## Multivariate conditional logistic regression ##########
-modall<-clogit(case~VEGF+sFlt1+PlGF+dxhypertension + strata(order), data = modData)
+modall<-clogit(case~VEGF+sFlt1+PlGF + strata(order), data = modData)
 summary(modall)
+
 modData$pregnancy7months<-relevel(modData$pregnancy7months, ref='None')
-allsig<-clogit(case~VEGF+sFlt1+PlGF+pregnancy7months+
-                 historypreeclampsia+historyhypertension+
-                 hivstatus+condomuse+strata(order), data=modData)
+allsig<-clogit(case~VEGF+sFlt1+PlGF+historyhypertension+
+                 historypreeclampsia
+                 +strata(order), data=modData)
 summary(allsig)
 
-############## make plots of plasma levels
-#stratified bu GA and PE status ###############
+############## make plots of plasma levels stratified bu GA and PE status ###############
 rm(sheila)
 sheila<-merged
 sheila$sFlt1<-log(sheila$sFlt1)
@@ -208,40 +236,28 @@ sheila$Status[sheila$case==0]<-"Controls"
 
 ######### get other plots #####
 df2<-sheila[c("studyID", "Status", "sFlt1", "PlGF", "VEGF", "sFlt1_P1GF", "wksameno")]
-names(df2)<-c("studyID","Status", "sFlT1", "PlGF","VEGF", "sFlT1/PlGF","wksameno")
+names(df2)<-c("studyID","Status", "sFlt1", "PlGF","VEGF", "sFlt1/PlGF","wksameno")
 df3<-melt(df2, id.vars=c("studyID","Status","wksameno"))
-p <- ggplot(df3, aes(wksameno, value, colour = factor(Status))) + geom_boxplot()+  geom_point(position = position_jitterdodge())
-p<-p + facet_grid(cols = vars(variable))+theme_classic()
-p<-p+xlab('')+ylab('Plasma levels')
-p$labels$colour<-"Status"
-p
 
-########### Heatmap ###########
-ann_col<-df2[c("Status","wksameno")]
-plasma<-df2[3:6]
-
-#require(pheatmap)
-#pheatmap(plasma, annotation_col = ann_col)
+############ Draw Heatmap ###########
+#change order of angiogenic factors A-VEGF, B-PlGF, C-SFlt1
+require(dplyr)
+df3<-df3 %>% 
+  dplyr::mutate(variable = factor(variable,levels = rev(c('VEGF','PlGF','sFlt1','sFlt1/PlGF')))) 
+  
 ph<-ggplot(data = df3,
-           aes(x=studyID,y=variable,fill=value))
-ph<-ph+geom_tile()+facet_grid(~wksameno+Status,scales = "free_x", space = "free_x")+scale_fill_gradient(name = "Plasma levels",
-                                                                                                        low = "#FFFFFF",
-                                                                                                        high = "#012345")
-ph<-ph+ylab('')+xlab('Study participants')
-ph<-ph+theme_classic()+theme(axis.text.x=element_blank(),
-             axis.ticks.x=element_blank())
+          aes(x=studyID,y=variable,fill=value))
+ph<-ph+geom_raster()+facet_grid(~wksameno+Status, scales = "free")+
+ #scale_fill_gradient(name = "Plasma levels",low = "#FFFFFF",high = "#012345")
+ scale_fill_distiller(palette = 'RdYlBu')
+ph<-ph+ylab('')+xlab('')
+ph<-ph+theme_classic(base_family = "Arial Black")+theme(axis.text.x=element_blank(),
+                            axis.ticks.x=element_blank(),
+                            text = element_text(size=20, face='bold'))
+ph$labels$fill<-""
 ph
 
-ph<-ggplot(data = df3,
-           aes(x=studyID,y=variable,fill=value))
-ph<-ph+geom_tile()+facet_grid(~Status,scales = "free_x", space = "free_x")+scale_fill_gradient(name = "Plasma levels",
-                                                                                                        low = "#FFFFFF",
-                                                                                                        high = "#012345")
-ph<-ph+ylab('')+xlab('Study participants')
-ph<-ph+theme_classic()+theme(axis.text.x=element_blank(),
-                             axis.ticks.x=element_blank())
-ph
-############split into wksameno grps############
+############ split into data into gestational age groups ############
 rm(sheila)
 sheila<-merged
 sheila<-sheila[!is.na(sheila$wksameno),]
@@ -292,94 +308,108 @@ aggregate(sFlt1_P1GF~Status, data = second_wk, quantile)
 aggregate(sFlt1_P1GF~Status, data = third_wk, quantile)
 aggregate(sFlt1_P1GF~Status, data = fourth_wk, quantile)
 
-######### lets us do normal logistic regression ####
-#
-library(pROC)
-mydata <- sheila# read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
-mylogit <- glm(case ~ VEGF, data = mydata, family = "binomial")
-summary(mylogit)
-prob=predict(mylogit,type=c("response"))
-mydata$prob=prob
-gvegf <-roc(case ~ prob, data = mydata)
-plot(gvegf)
-# library(caret)
-# # Use your model to make predictions, in this example newdata = training set, but replace with your test set    
-# pdata <- predict(logitMod, newdata = train, type = "response")
-# 
-# # use caret and compute a confusion matrix
-# confusionMatrix(data = as.numeric(pdata>0.5), reference = train$LoanStatus_B)
-
-gvegf_roc<-data.frame(ses=gvegf$sensitivities, spc=gvegf$specificities)
-gvegf_roc$Analyte<-"VEGF"
-
-mylogit <- glm(case ~ sFlt1, data = mydata, family = "binomial")
-summary(mylogit)
-prob=predict(mylogit,type=c("response"))
-mydata$prob=prob
-gsflt1 <- roc(case ~ prob, data = mydata)
-gsflt1_roc<-data.frame(ses=gsflt1$sensitivities, spc=gsflt1$specificities)
-gsflt1_roc$Analyte<-"sFlT1"
-
-mylogit <- glm(case ~ PlGF, data = mydata, family = "binomial")
-summary(mylogit)
-prob=predict(mylogit,type=c("response"))
-mydata$prob=prob
-gplgf <- roc(case ~ prob, data = mydata)
-gplgf_roc<-data.frame(ses=gplgf$sensitivities, spc=gplgf$specificities)
-gplgf_roc$Analyte<-"PlGF"
-
-mylogit <- glm(case ~ sFlt1_P1GF, data = mydata, family = "binomial")
-summary(mylogit)
-prob=predict(mylogit,type=c("response"))
-mydata$prob=prob
-gratio <- roc(case ~ prob, data = mydata)
-gratio_roc<-data.frame(ses=gratio$sensitivities, spc=gratio$specificities)
-gratio_roc$Analyte<-"sFlT1/PlGF"
-
-roc_combn<-rbind(gratio_roc, gplgf_roc,
-                 gvegf_roc, gsflt1_roc)
-roc_combn$spc<-1-roc_combn$spc
-p<-ggplot(data = roc_combn, aes(x=spc, y=ses, color=Analyte))
-p<-p+geom_line()+xlab('1-Specificity')+ylab('Sensitivity')
-p<-p+theme_classic()
-p
-
-# allsig<-glm(case~VEGF+sFlt1+PlGF+
-#                  historypreeclampsia+firstpregnancy+historyhypertension+
-#                  hivstatus+condomuse+wksameno, data=sheila, family = "binomial")
-# summary(allsig)
-
-###### Overall sensitivity ########
-set.seed(101) # Set Seed so that same sample can be reproduced in future also
-# Now Selecting 75% of data as sample from total 'n' rows of the data  
-sample <- sample.int(n = nrow(sheila), size = floor(.75*nrow(sheila)), replace = F)
-
-train <- sheila[sample, ]
-test  <- sheila[-sample, ]
-
-dim(train)
-dim(test)
-
+###### Overall sensitivity ########hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhnj
 library(caret)
-train$case<-factor(train$case)
-train$case<-relevel(train$case, ref = '0')
+library(pROC)
 
-test$case<-factor(test$case)
-test$case<-relevel(test$case, ref = '0')
+sheila<-modData
+sheila$case<-ifelse(sheila$case=='0','Control', 'Case')
+sheila$case<-factor(sheila$case)
+sheila$case<-relevel(sheila$case, ref = 'Control')
 
-mylogit <- glm(case ~ sFlt1_P1GF, data = train, family = binomial(link="logit"))
-pdata <- predict(mylogit, newdata = test, type = "response")
-confusionMatrix(data = as.factor(as.numeric(pdata>0.5)), reference = test$case, positive = '1')
+set.seed(3456) 
+train.control <- trainControl(method = "cv", 
+                              number = 10,
+                              savePredictions = T,
+                              #repeats = 5,
+                              classProbs = T,
+                              summaryFunction = twoClassSummary)
+#Train the sFlt1/P1GF model
+model_ratio <- train(case ~ sFlt1_P1GF, data=sheila, 
+               trControl=train.control, method="glm",
+               family=binomial(),
+               metric='ROC')
+#print(model_ratio)
+pred.ratio<-predict(model_ratio)
+confusionMatrix(pred.ratio, sheila$case, positive = 'Case')
+#Draw roc curve
+prob=predict(model_ratio$finalModel,type=c("response"))
+sheila$ratio_prob=prob
+ratio_roc <- roc(case ~ ratio_prob, data = sheila)
+auc(ratio_roc)
+ci.auc(ratio_roc)
+ratio_roc_df<-data.frame(ses=ratio_roc$sensitivities, spc=ratio_roc$specificities)
+ratio_roc_df$Analyte<-"sFlt1/PlGF"
+coords(ratio_roc, "best", ret="threshold", best.method="youden", transpose = T)
 
-mylogit <- glm(case ~ sFlt1, data = train, family = binomial(link="logit"))
-pdata <- predict(mylogit, newdata = test, type = "response")
-confusionMatrix(data = as.factor(as.numeric(pdata>0.5)), reference = test$case, positive = '1')
 
-mylogit <- glm(case ~ PlGF, data = train, family = binomial(link="logit"))
-pdata <- predict(mylogit, newdata = test, type = "response")
-confusionMatrix(data = as.factor(as.numeric(pdata>0.5)), reference = test$case, positive = '1')
+#Train the sFlt1 model
+model_sflt1 <- train(case ~ sFlt1, data=sheila, 
+                     trControl=train.control, method="glm",
+                     family=binomial(),
+                     metric='ROC')
+#print(model_ratio)
+pred.sflt1<-predict(model_sflt1)
+confusionMatrix(pred.sflt1, sheila$case, positive = 'Case')
 
-mylogit <- glm(case ~ VEGF, data = train, family = binomial(link="logit"))
-pdata <- predict(mylogit, newdata = test, type = "response")
-confusionMatrix(data = as.factor(as.numeric(pdata>0.5)), reference = test$case, positive = '1')
+#Draw roc curve
+prob=predict(model_ratio$finalModel,type=c("response"))
+sheila$sflt1_prob=prob
+sflt1_roc <- roc(case ~ sflt1_prob, data = sheila)
+auc(sflt1_roc)
+ci.auc(sflt1_roc)
+sflt1_roc_df<-data.frame(ses=sflt1_roc$sensitivities, spc=sflt1_roc$specificities)
+sflt1_roc_df$Analyte<-"sFlt1"
+coords(sflt1_roc, "best", ret="threshold", best.method="youden", transpose = T)
 
+#Train the PlGF model
+model_gplf <- train(case ~ PlGF, data=sheila, 
+                     trControl=train.control, method="glm",
+                     family=binomial(),
+                     metric='ROC')
+#print(model_ratio)
+pred.gplf<-predict(model_gplf)
+confusionMatrix(pred.gplf, sheila$case, positive = 'Case')
+
+#Draw roc curve
+prob=predict(model_gplf$finalModel,type=c("response"))
+sheila$plgf_prob=prob
+plgf_roc <- roc(case ~ plgf_prob, data = sheila)
+auc(plgf_roc)
+ci.auc(plgf_roc)
+plgf_roc_df<-data.frame(ses=plgf_roc$sensitivities, spc=plgf_roc$specificities)
+plgf_roc_df$Analyte<-"PlGF"
+coords(plgf_roc, "best", ret="threshold", best.method="youden", transpose = T)
+
+#Train the VEGF model
+model_vegf <- train(case ~ VEGF, data=sheila, 
+                    trControl=train.control, method="glm",
+                    family=binomial(),
+                    metric='ROC')
+#print(model_ratio)
+pred.vegf<-predict(model_vegf)
+confusionMatrix(pred.vegf, sheila$case, positive = 'Case')
+
+#Draw roc curve
+prob=predict(model_vegf$finalModel,type=c("response"))
+sheila$vegf_prob=prob
+vegf_roc <- roc(case ~ vegf_prob, data = sheila)
+auc(vegf_roc)
+ci.auc(vegf_roc)
+vegf_roc_df<-data.frame(ses=vegf_roc$sensitivities, spc=vegf_roc$specificities)
+vegf_roc_df$Analyte<-"VEGF"
+#ci.coords(vegf_roc, "best", ret="threshold", best.method="youden", 
+ #         transpose = T, best.policy = 'random')
+coords(vegf_roc, "best", ret="threshold", best.method="youden", 
+          transpose = T)
+
+################## Combine and plot ROC ###########
+df4<-rbind(sflt1_roc_df, ratio_roc_df, plgf_roc_df, vegf_roc_df)
+df4$spc<-1-df4$spc
+df4<-df4 %>% 
+  dplyr::mutate(Analyte = factor(Analyte,levels = c('VEGF','PlGF','sFlt1','sFlt1/PlGF'))) 
+p<-ggplot(data = df4, aes(x=spc, y=ses, color=Analyte))
+p<-p+geom_line(size=1.2)+xlab('1-Specificity')+ylab('Sensitivity')
+p<-p+theme_classic()+theme(text = element_text(size=20,face='bold'))
+p$labels$colour<-"Angiogenic factors"
+p
