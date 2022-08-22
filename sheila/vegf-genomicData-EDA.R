@@ -16,7 +16,7 @@ require(ggplot2)
 require(cowplot)
 
 # load data into R
-GenomicData <- read.csv("~/Desktop/MISC/sheila_updated.csv")
+GenomicData <- read.csv("vegf-genomic-sample-data.csv")
 # create a dataframe with varibles of interest
 tmp_vars<-c("No","Gestational_age","Maternal_age", "VEGF","Status", "Genotype")
 tmp_df<-GenomicData[tmp_vars]
