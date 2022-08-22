@@ -17,7 +17,7 @@ require(cowplot)
 
 # load data into R
 GenomicData <- read.csv("vegf-genomic-sample-data.csv")
-# create a dataframe with varibles of interest
+# create a dataframe with variables of interest
 tmp_vars<-c("No","Gestational_age","Maternal_age", "VEGF","Status", "Genotype")
 tmp_df<-GenomicData[tmp_vars]
 # obtain the mean gestation and maternal ages for cases and controls
