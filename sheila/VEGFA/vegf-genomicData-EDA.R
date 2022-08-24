@@ -16,7 +16,7 @@ require(ggplot2)
 require(cowplot)
 
 # load data into R
-GenomicData <- read.csv("vegf-genomic-sample-data.csv")
+GenomicData <- read.csv("~/Desktop/MISC/sheila_updated.csv")
 # create a dataframe with variables of interest
 tmp_vars<-c("No","Gestational_age","Maternal_age", "VEGF","Status", "Genotype")
 tmp_df<-GenomicData[tmp_vars]
@@ -86,7 +86,7 @@ panelC<-ggplot(data=df3, aes(x=Status,y=value,color=Status))+
   geom_boxplot(na.rm = T)+geom_point()+#facet_wrap(~variable, scales = "free")
   geom_jitter(height = 0.1)+
   scale_color_manual("Status",values=c("#728FCE","#EBCC2A")) +
-  ylab('Log2-transformed  plasma concentration')+ggtitle("All genotypes")+
+  ylab('Log2-transformed  plasma concentration (pg/mL)')+ggtitle("All genotypes")+
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
   theme(axis.title.y = element_text(color="black", size=15))+
@@ -107,7 +107,7 @@ panelD<-ggplot(data=df3, aes(x=Status,y=value,color=Status))+
   geom_boxplot(na.rm = T)+geom_point()+#facet_wrap(~variable, scales = "free")
   geom_jitter(height = 0.1)+
   scale_color_manual("Status",values=c("#728FCE","#EBCC2A")) +
-  ylab('Log2-transformed plasma concentration')+ggtitle("Genotype CC")+#ggtitle("Lineages and mutations")+
+  ylab('Log2-transformed plasma concentration (pg/mL)')+ggtitle("Genotype CC")+#ggtitle("Lineages and mutations")+
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
   theme(axis.title.y = element_text(color="black", size=15))+
@@ -130,7 +130,7 @@ panelE<-ggplot(data=df3, aes(x=Status,y=value,color=Status))+
   geom_boxplot(na.rm = T)+geom_point()+#facet_wrap(~variable, scales = "free")
   geom_jitter(height = 0.1)+
   scale_color_manual("Status",values=c("#728FCE","#EBCC2A")) +
-  ylab('Log-transformed plasma concentration')+ggtitle("Genotypes CT and TT")+#ggtitle("Lineages and mutations")+
+  ylab('Log-transformed plasma concentration (pg/mL)')+ggtitle("Genotypes CT and TT")+#ggtitle("Lineages and mutations")+
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
   theme(axis.title.y = element_text(color="black", size=15))+
@@ -144,10 +144,93 @@ panelE
 # combine panels 
 fig1<-cowplot::plot_grid(panelC, panelD, panelE, labels = c("A","B","C"), nrow = 1)
 fig1
-fig2<-cowplot::plot_grid(panelC, panelD, labels = c("A","B"), nrow = 1)
-#ggsave("Figure2.pdf", plot=fig2, device="pdf", height=7, width = 12)
+#fig2<-cowplot::plot_grid(panelC, panelD, labels = c("A","B"), nrow = 1)
+#ggsave("~/Desktop/Figure2.pdf", plot=fig1, device="pdf", height=7, width = 12)
 #all<-cowplot::plot_grid(panelA, panelB, panelC, panelD, labels = c("A","B","C", "D"), nrow = 2)
 #ggsave("Figure1.pdf", plot=all, device="pdf", height=10, width = 12)
+
+df4 <- data.frame(table(GenomicData$Family.history.of.hypertension, GenomicData$Genotype, GenomicData$Status))
+names(df4)<-c("family_hypert", "genotype", "status", "freq")
+df4
+df4$genotype2[df4$genotype%in%c("CC","TT")]<-"Homozygous"
+df4$genotype2[df4$genotype%in%c("CT")]<-"Heterozygous"
+df4$genotype2[df4$genotype%in%c("CT")]<-"Heterozygous"
+
+df4$family_hypert2<-factor(df4$family_hypert,
+                         levels = c(1,2),
+                         labels = c("No","Yes"))
+df4
+
+df4_cc <- df4[df4$genotype=="CC",]
+p<-ggplot(data=df4_cc, aes(x=status,y=freq,fill=family_hypert2))
+p<-p+geom_bar(stat = "identity",position=position_dodge())
+#p<-p+geom_text(aes(label=freq),position=position_dodge(width=0.9), vjust=-0.25,size=5)
+#p<-p+facet_wrap(~genotype)
+p$labels$fill<-"Family history of hypertension"
+p1<-p+theme(axis.title.x = element_text(color="black", size=15))+
+  theme(axis.text.x = element_text(color="black", size=12))+
+  theme(axis.title.y = element_text(color="black", size=15))+
+  theme(axis.text.y = element_text(color="black", size=15))+
+  scale_fill_manual(values=c("brown","navyblue")) +
+  theme(strip.background = element_rect(fill="white",colour = "black"),
+        strip.text = element_text(size = 15, colour = "black"))+
+  theme(legend.position="none", axis.text.x = element_text(angle=0)
+        ,panel.background = element_blank(),
+        legend.text = element_text(size=12, colour = "black"),
+        legend.title = element_text(size=15, colour = "black"),
+        panel.border = element_rect(fill=NA))+xlab("Preeclampsia status")+
+  ylab("Number of participants")+ggtitle("Genotype CC")
+p1
+
+## Genotype CT
+df4_ct <- df4[df4$genotype%in%c("CT","TT"),]
+p<-ggplot(data=df4_ct, aes(x=status,y=freq,fill=family_hypert2))
+p<-p+geom_bar(stat = "identity",position=position_dodge())
+#p<-p+geom_text(aes(label=freq),position=position_dodge(width=0.9), vjust=-0.25,size=5)
+#p<-p+facet_wrap(~genotype)
+p$labels$fill<-"Family history of hypertension"
+p2<-p+theme(axis.title.x = element_text(color="black", size=15))+
+  theme(axis.text.x = element_text(color="black", size=12))+
+  theme(axis.title.y = element_text(color="black", size=15))+
+  theme(axis.text.y = element_text(color="black", size=15))+
+  scale_fill_manual(values=c("brown","navyblue")) +
+  scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10))+
+  theme(strip.background = element_rect(fill="white",colour = "black"),
+        strip.text = element_text(size = 15, colour = "black"))+
+  theme(legend.position="right", axis.text.x = element_text(angle=0)
+        ,panel.background = element_blank(),
+        legend.text = element_text(size=12, colour = "black"),
+        legend.title = element_text(size=15, colour = "black"),
+        panel.border = element_rect(fill=NA))+xlab("Preeclampsia status")+
+  ylab("Number of participants")+ggtitle("Genotypes CT and TT")
+p2
+
+# all genotypes
+p<-ggplot(data=df4, aes(x=status,y=freq,fill=family_hypert2))
+p<-p+geom_bar(stat = "identity",position=position_dodge())
+#p<-p+geom_text(aes(label=freq),position=position_dodge(width=0.9), vjust=-0.25,size=5)
+#p<-p+facet_wrap(~genotype)
+p$labels$fill<-"Family history of hypertension"
+p3<-p+theme(axis.title.x = element_text(color="black", size=15))+
+  theme(axis.text.x = element_text(color="black", size=12))+
+  theme(axis.title.y = element_text(color="black", size=15))+
+  theme(axis.text.y = element_text(color="black", size=15))+
+  scale_fill_manual(values=c("brown","navyblue")) +
+  theme(strip.background = element_rect(fill="white",colour = "black"),
+        strip.text = element_text(size = 15, colour = "black"))+
+  theme(legend.position="none", axis.text.x = element_text(angle=0)
+        ,panel.background = element_blank(),
+        legend.text = element_text(size=12, colour = "black"),
+        legend.title = element_text(size=15, colour = "black"),
+        panel.border = element_rect(fill=NA))+xlab("Preeclampsia status")+
+  ylab("Number of participants")+ggtitle("All genotypes")
+p3
+
+# combine panels 
+fig3<-cowplot::plot_grid(p3, p1, p2, nrow = 1, rel_widths = c(0.2,0.2, 0.4))
+fig3
+ggsave("~/Desktop/Figure3.pdf", plot=fig3, device="pdf", height=7, width = 12)
+
 
 # Detailed analysis of VEGF levels between cases and controls
 vegf<-GenomicData[c("VEGF","Genotype","Status")]
