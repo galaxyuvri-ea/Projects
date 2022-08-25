@@ -308,12 +308,17 @@ mod<-clogit(case~rs3025039+
               Family.history.of.preeclampsia+
               Family.history.of.hypertension+
               Family.history.of.diabetes.Mellitus+
-              first.pregnancy+
+              #first.pregnancy+
               #diagnosis.with.hypertension.in.previous.pregnancy+
               type.of.pregnancy+
               hiv_status+
               strata(No), data = GenomicData2)
 summary(mod)
+# adjust p-values using bonferroni method
+mod_summary <- summary(mod)
+df_p<-data.frame(mod_summary$coefficients)
+df_p$corrected<-p.adjust(df_p$Pr...z.., method = "bonferroni")
+df_p
 
 # generate plots for variant frequency by PE status
 vars2<-c("Status","rs3025039", "Genotype")
