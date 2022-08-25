@@ -2,7 +2,7 @@
 # Author: Alfred Ssekagiri
 # Link: https://github.com/galaxyuvri-ea/Projects/blob/master/Martin/viruses-abundance.R
 # Created: 07th-August-2022
-# Modified: 16th-August-2022
+# Modified: 26th-August-2022
 
 # clean environment
 rm(list = ls())
@@ -190,7 +190,7 @@ p4<-ggplot(data=div_df, aes(x=Site2,y=Observed, color=District))+
 # create a side by side plot of the richness and Simpson's diversity plots across districts
 grid.arrange(p3,p4,nrow=2,top = textGrob("Genus level alpha diversity across sampling sites",gp=gpar(fontsize=15, fontface="bold")))
 
-#================== TASK 3: Genus level alpha diversity (Richness and Simpson's diversity) across mosquito species =================#
+#================== TASK 3: Genus level alpha diversity (Richness and Simpson's diversity) across mosquito genera =================#
 
 # compute genera richness and Simpson's diversity index
 est <- estimate_richness(physeq, split = TRUE, measures = c("Simpson","Observed"))
@@ -242,4 +242,4 @@ p6<-ggplot(data=div_df, aes(x=Genus,y=Observed, color=Genus))+
   scale_color_brewer(palette = "Set2")
 
 # create a side by side plot of the richness and Simpson's diversity plots among mosquito species
-grid.arrange(p5,p6,nrow=1,top = textGrob("Genus level alpha diversity among mosquito species",gp=gpar(fontsize=15, fontface="bold")))
+grid.arrange(p5,p6,nrow=1,top = textGrob("Genus level alpha diversity among mosquito genera",gp=gpar(fontsize=15, fontface="bold")))
