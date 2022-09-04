@@ -19,6 +19,8 @@ require(pheatmap)
 setwd("~/Desktop/Martin/")
 # import data into R environment
 metadata<-read.csv("metadata.csv")
+metadata<-metadata[metadata$Mosquito.genera!="Eretmopodites",]
+
 viruses<-read.csv("mosquito_viruses.csv")
 
 viruses$count<-1 # add a dummy counter to each row
@@ -70,7 +72,7 @@ physeq
 #================== TASK 1: Generate a heatmap showing the counts of hits for different virus genera detected across districts =================#
 
 # first we sort the metadata by district
-metadata <- metadata[order(metadata$District), ]
+metadata <- metadata[order(metadata$District, metadata$Mosquito.genera), ]
 # then re-order abund table to be in order created above
 abund <- abund[rownames(metadata), ]
 # similarly, we sort want to sort the genera by family
@@ -78,12 +80,26 @@ taxon_fam <- taxon_fam[order(taxon_fam$family), ]
 # then re-order abund table to be in order created above
 abund <- abund[,taxon_fam$genus]
 # generate the heatmap
+
+#library("RColorBrewer")
+#brewer.pal(5, "Set2")
+#"#66C2A5" "#FC8D62" "#8DA0CB" "#E78AC3" "#A6D854"
+
+annotation_colors = list(
+  District = c(Arua="brown", Kasese="navyblue"),
+  `Mosquito genera` = c(Aedes="#66C2A5", Anopheles="#FC8D62", Coquillettidia="#8DA0CB",
+            Culex="#E78AC3", Mansonia="#A6D854"))
+
+metadata_pheat<-metadata
+colnames(metadata_pheat)<-sub("\\.", " ", colnames(metadata_pheat))
 pheatmap(as.matrix(t(log(abund+1))), 
              cluster_cols = F,
              cluster_rows = F,
-         annotation_col = metadata["District"],
+         annotation_col = metadata_pheat[c("Mosquito genera","District")],
          treeheight_row = 0,
-             main="Virus genera detected among mosquito pools from Arua and Kasese districts")
+         annotation_colors = annotation_colors,
+            # main="Virus genera detected among mosquito pools from Arua and Kasese districts"
+         )
 
 #================== TASK 2: Alpha diversity (Richness and Simpson's diversity) across districts =================#
 
@@ -104,7 +120,7 @@ kruskal.test(Simpson~District, data = div_df)
 
 # generate a boxplot showing the distribution of genera Simpson's diversity across districts
 p1<-ggplot(data=div_df, aes(x=District,y=Simpson, color=District))+
-  geom_boxplot(na.rm = T) + geom_point()+  #geom_jitter(height = 0.5)+
+  geom_boxplot(na.rm = T) + geom_point()+  geom_jitter(height = 0.25)+
   scale_color_manual("District",values=c("brown","navyblue")) +
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
@@ -120,7 +136,7 @@ p1<-ggplot(data=div_df, aes(x=District,y=Simpson, color=District))+
 
 # generate a boxplot showing the distribution of genera richness across districts
 p2<-ggplot(data=div_df, aes(x=District,y=Observed, color=District))+
-  geom_boxplot(na.rm = T) + geom_point()+  #geom_jitter(height = 0.5)+
+  geom_boxplot(na.rm = T) + geom_point()+ geom_jitter(height = 0.5)+
   scale_color_manual("District",values=c("brown","navyblue")) +
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
@@ -135,14 +151,14 @@ p2<-ggplot(data=div_df, aes(x=District,y=Observed, color=District))+
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10))
 
 # create a side by side plot of the richness and Simpson's diversity plots across districts
-grid.arrange(p1,p2,nrow=1,top = textGrob("Genus level alpha diversity across districts",gp=gpar(fontsize=15, fontface="bold")))
-
+#grid.arrange(p1,p2,nrow=1,top = textGrob("Genus level alpha diversity across districts",gp=gpar(fontsize=15, fontface="bold")))
+grid.arrange(p1,p2,nrow=1)
 #================== TASK 3: Alpha diversity (Richness and Simpson's diversity) across sampling sites =================#
 
 # compute genera richness and Simpson's diversity index across districts
 est <- estimate_richness(physeq, split = TRUE, measures = c("Simpson","Observed"))
 div_df <- cbind(est,sample_data(physeq)[,c("Site2","District")])
-
+div_df<-div_df[!div_df$Site2%in%c("Arua-mixed","Kasese-mixed"),]
 # test for normality of the distribution of the alpha diversity measures
 shapiro.test(div_df$Simpson)
 shapiro.test(div_df$Observed)
@@ -157,7 +173,7 @@ kruskal.test(Simpson~Site2, data = div_df)
 
 # generate a boxplot showing the distribution of genera Simpson's diversity across districts
 p3<-ggplot(data=div_df, aes(x=Site2,y=Simpson, color=District))+
-  geom_boxplot(na.rm = T) + geom_point()+  #geom_jitter(height = 0.5)+
+  geom_boxplot(na.rm = T) + geom_point()+ geom_jitter(height = 0.5)+
   scale_color_manual("Site2",values=c("brown","navyblue")) +
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
@@ -173,7 +189,7 @@ p3<-ggplot(data=div_df, aes(x=Site2,y=Simpson, color=District))+
 
 # generate a boxplot showing the distribution of genera richness across districts
 p4<-ggplot(data=div_df, aes(x=Site2,y=Observed, color=District))+
-  geom_boxplot(na.rm = T) + geom_point()+ # geom_jitter(height = 0.5)+
+  geom_boxplot(na.rm = T) + geom_point()+ geom_jitter(height = 0.5)+
   scale_color_manual("Site2",values=c("brown","navyblue")) +
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
@@ -188,14 +204,14 @@ p4<-ggplot(data=div_df, aes(x=Site2,y=Observed, color=District))+
   scale_y_continuous(breaks = c(0, 2, 4, 6, 8, 10))
 
 # create a side by side plot of the richness and Simpson's diversity plots across districts
-grid.arrange(p3,p4,nrow=2,top = textGrob("Genus level alpha diversity across sampling sites",gp=gpar(fontsize=15, fontface="bold")))
-
+# grid.arrange(p3,p4,nrow=2,top = textGrob("Genus level alpha diversity across sampling sites",gp=gpar(fontsize=15, fontface="bold")))
+grid.arrange(p3,p4,nrow=2)
 #================== TASK 3: Genus level alpha diversity (Richness and Simpson's diversity) across mosquito genera =================#
 
 # compute genera richness and Simpson's diversity index
 est <- estimate_richness(physeq, split = TRUE, measures = c("Simpson","Observed"))
-div_df <- cbind(est,sample_data(physeq)[,"Genus"])
-div_df<-div_df[div_df$Genus!="Eretmopodites",]
+div_df <- cbind(est,sample_data(physeq)[,"Mosquito.genera"])
+div_df<-div_df[div_df$Mosquito.genera!="Eretmopodites",]
 # test for normality of the distribution of the alpha diversity measures
 shapiro.test(div_df$Simpson)
 shapiro.test(div_df$Observed)
@@ -206,12 +222,12 @@ aggregate(.~Genus, FUN=median, data=div_df)
 # test for significance of differences of alpha diversity measures among mosquito species
 kruskal.test(Observed~Genus, data = div_df)
 kruskal.test(Simpson~Genus, data = div_df)
-dunn.test::dunn.test(div_df$Simpson, div_df$Genus)
-dunn.test::dunn.test(div_df$Observed, div_df$Genus)
+dunn.test::dunn.test(div_df$Simpson, div_df$Mosquito.genera)
+dunn.test::dunn.test(div_df$Observed, div_df$Mosquito.genera)
 
 # generate a boxplot showing the distribution of genera Simpson's diversity among mosquito species
-p5<-ggplot(data=div_df, aes(x=Genus,y=Simpson,color=Genus))+
-  geom_boxplot(na.rm = T) + geom_point()+ #geom_jitter(height = 0.5)+
+p5<-ggplot(data=div_df, aes(x=Mosquito.genera,y=Simpson,color=Mosquito.genera))+
+  geom_boxplot(na.rm = T) + geom_point()+ geom_jitter(height = 0.5)+
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
   theme(axis.title.y = element_text(color="black", size=15))+
@@ -226,8 +242,8 @@ p5<-ggplot(data=div_df, aes(x=Genus,y=Simpson,color=Genus))+
   scale_color_brewer(palette = "Set2")
 
 # generate a boxplot showing the distribution of genera richness among mosquito species
-p6<-ggplot(data=div_df, aes(x=Genus,y=Observed, color=Genus))+
-  geom_boxplot(na.rm = T) + geom_point()+ #geom_jitter(height = 0.5)+
+p6<-ggplot(data=div_df, aes(x=Mosquito.genera,y=Observed, color=Mosquito.genera))+
+  geom_boxplot(na.rm = T) + geom_point()+ geom_jitter(height = 0.5)+
   theme(axis.title.x = element_text(color="black", size=15))+
   theme(axis.text.x = element_text(color="black", size=12))+
   theme(axis.title.y = element_text(color="black", size=15))+
@@ -242,4 +258,5 @@ p6<-ggplot(data=div_df, aes(x=Genus,y=Observed, color=Genus))+
   scale_color_brewer(palette = "Set2")
 
 # create a side by side plot of the richness and Simpson's diversity plots among mosquito species
-grid.arrange(p5,p6,nrow=1,top = textGrob("Genus level alpha diversity among mosquito genera",gp=gpar(fontsize=15, fontface="bold")))
+#grid.arrange(p5,p6,nrow=1,top = textGrob("Genus level alpha diversity among mosquito genera",gp=gpar(fontsize=15, fontface="bold")))
+grid.arrange(p5,p6,nrow=1)
