@@ -16,7 +16,7 @@
    3. After optimizing the analysis procedure, we shall provide a commandline utility of this script. 
 
 **DEPENDENCIES**: 
-    -seqkit: conda install seqkit -c bioconda
+    -seqkit: `conda install seqkit -c bioconda`
 
 **USAGE**: 
    For now, the script is run inside a directory/location of the outputs of CD-HIT (.fasta and .clstr) files
