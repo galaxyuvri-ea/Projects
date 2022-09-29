@@ -19,8 +19,8 @@
     -seqkit: `conda install seqkit -c bioconda`
 
 **USAGE**: 
-   For now, the script is run inside a directory/location of the outputs of CD-HIT (.fasta and .clstr) files
-   In addition, it requires a single FASTA file (refs.fasta, see step ) containing all the reference sequences.
+   For now, the script is run inside a directory/location of the outputs of `CD-HIT` (`.fasta` and `.clstr`) files
+   In addition, it requires a single FASTA file (`refs.fasta`, see **STEP 7** ) containing all the reference sequences.
    We analyse 3prime data seperately from 5prime data, as such we recommend having two seperate directories
    one for 3prime data and the other for 5prime data. Then add this script to both folders.
    To run this script, simply navigate to directory with the data as specified above and type the following on your terminal.
